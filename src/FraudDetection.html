@@ -22,121 +22,189 @@
        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/yeti/bootstrap.min.css"  crossorigin="anonymous">
        <title>North Bay Labour Market Dashboard</title>
 </head>
-       <body class="bg-primary">
-              <div class="container  bg-secondary m-5">
-                     <h1>Supervised Machine Learning Model Evaluation and Selection for Credit Card Fraud Detection</h1>
-                     <h2>An Overview and purpose:</h2>
-                     <p>To evaluate a variety of machine learning algorithms and their ability to correctly identify fraudulent transactions within a population of transactions.  The binary classification machine learning models will be evaluated using a labeled dataset consisting of 22 features.</p>
-                     <ol>
-                     <li>Trans_date_trans_time: Timestamp of the transaction (date and time).  </li>
-                     <li>Cc_num: Unique customer identification number.  </li>
-                     <li>MerchantThe merchant involved in the transaction.  </li>
-                     <li>Category Transaction type (e.g., personal, childcare). </li>
-                     <li>Amt: Transaction amount.  </li>
-                     <li>First: Cardholder&#39;s first name.  </li>
-                     <li>Last Cardholder&#39;s last name.  </li>
-                     <li>Gender: Cardholder&#39;s gender.  </li>
-                     <li>Street: Cardholder&#39;s street address.  </li>
-                     <li>City: Cardholder&#39;s city of residence.</li>
-                     <li>State: Cardholder&#39;s state of residence.</li>
-                     <li>Zip: Cardholder&#39;s zip code.</li>
-                     <li>Lat: Latitude of cardholder&#39;s location.</li>
-                     <li>Long: Longitude of cardholder&#39;s location.</li>
-                     <li>City_pop: Population of the cardholder&#39;s city.</li>
-                     <li>Job: Cardholder&#39;s job title.</li>
-                     <li>Dob: Cardholder&#39;s date of birth.</li>
-                     <li>Trans_num: Unique transaction identifier.</li>
-                     <li>Unix_time: Transaction timestamp (Unix format).</li>
-                     <li>Merch_lat: Merchant&#39;s location (latitude).</li>
-                     <li>Merch_long: Merchant&#39;s location (longitude).</li>
-                     <li>Is_fraud:Fraudulent transaction indicator (1 = fraud, 0 = legitimate). This is the target variable for classification purposes.</li>
-                     </ol>
-                     <p>The analysis is divided into the following six parts:</p>
-                     <ol>
-                     <li>Target variable review.</li>
-                     <li>Selection of the objective metric(s) for model assessment.</li>
-                     <li>Feature Engineering and Data Preprocessing.</li>
-                     <li>Evaluation of various types of machine learning algorithms with minimal tuning.</li>
-                     <li>Selection of the &quot;best&quot; algorithm from the assessed set of algorithms for hyperparameter tuning.</li>
-                     <li>Tuning the chosen model for optimal performance.</li>
-                     </ol>
-                     <hr>
-                     <h2>Part 1 Target Variable Review</h2>
-                     
-                     <p>The dataset consisted of 555718 transaction records of which 2145 were fraudulent (0.3860%).  The labels therefore are highly imbalanced and steps were taken to address the impact of this imbalance on the models.<br>
-                            <div class="row align-items-center">
-                                   <div class="col-6 offset-md-1">
-                                          <img src="/img/Target_Variable_distribution.png" alt="Target Variable Distribution">
-                                   </div>
-                            </div>
-                     </p>
-                     
-                     <hr>
-                     <h2>Part 2 Selection of the objective metric for model assessment</h2>
-                     <p>A common metric for machine learning model assessment is accuracy.  However, when dealing with a dataset with a highly imbalanced target variable, relying on accuracy for model assessment can cause issues.</p>
-                     <p>Accuracy, as a metric, represents the proportion of correct predictions out of all predictions made. However, when assessing a model’s ability to predict rare positive labels (such as fraudulent transactions), accuracy can be misleading. Why? Because it gives equal weight to both positive (fraudulent) and negative (non-fraudulent) predictions. Let’s illustrate this with an example:</p>
-                     <p>Suppose we have a dataset of 100 transactions, with 50 being fraudulent and 50 non-fraudulent. If a model correctly identifies just 90% of the fraudulent transactions (45 out of 50), it achieves an accuracy score of 95%. However, consider a different scenario: a dataset with only 10 fraudulent records and 90 non-fraudulent records. In this case, the model can achieve the same 90% accuracy by correctly identifying all non-fraudulent transactions but completely missing the fraudulent ones.</p>
-                     <p>Given that our dataset has, on average, only 1 fraudulent transaction for every 259 transactions observed, using accuracy alone as the performance measure is inadequate. To address this, we turn to balanced accuracy.</p>
-                     <p>Balanced accuracy accounts for the class imbalance by considering both positive and negative predictions. It is calculated as the average of two ratios:</p>
-                     <p>The correctly predicted fraudulent transactions are divided by all fraudulent transactions (cpf/af).<br>The correctly predicted non-fraudulent transactions are divided by all non-fraudulent transactions (cpnf/anf).<br>Mathematically:</p>
-                     <p>Balanced Accuracy = (cpf/af + cpnf/anf) / 2<br>Where:</p>
-                     <p>cpf = correctly predicted fraudulent transactions<br>af = all fraudulent transactions<br>cpnf = correctly predicted non-fraudulent transactions<br>anf = all non-fraudulent transactions&quot;</p>
-                     <p>Balanced Accuracy is a more appropriate objective metric over accuracy when working with imbalanced classes in the target, as it weighs each sample according to the inverse prevalence of its true class.  It is this metric that is used to assess each model&#39;s performance.</p>
-                     <hr>
-                     <h2>Part 3 Feature Engineering and Data Preprocessing</h2>
-                     <p>After performing a descriptive analysis of the data some features were dropped or created then encoded/transformed and scaled:   </p>
-                     <ol>
-                     <li><strong>Dropped Features</strong>: &#39;First&#39; Name, &#39;Last&#39; Name, &#39;cc_num&#39;, &#39;street&#39;, &#39;city&#39;, &#39;state&#39;, &#39;dob&#39;, &#39;Trans_num&#39;, &#39;Unix_time&#39;, &#39;Lat&#39;, &#39;Long&#39;, &#39;Merch_lat&#39;, &#39;Merch_long&#39;.  The personal identification data was dropped as we didn&#39;t want it to influence the analysis, we tried to find the fraudulent customer without knowing their exact ID.  Transaction features like Trans_num, and Unix_Time were also dropped as they do not correlate to the inci2ence of fraud.  </li>
-                     <li><strong>Created Features</strong>:</li>
-                     </ol>
-                     <ul>
-                     <li>&#39;Region&#39;, an amalgamation of U.S. States according to the  <a href="https://www.bea.gov/">U.S. Bureau of Economic Analysis</a>.</li>
-                     <li>&#39;Age_years&#39;, the age of the cardholder based on the difference between today&#39;s date and the cardholder&#39;s DOB.</li>
-                     <li>&#39;Distance_km&#39;, the distance between the cardholder&#39;s latitude and longitude and the merchant&#39;s latitude and longitude.</li>
-                     </ul>
-                     <ol start="4">
-                     <li><p><strong>Encoding Features with few categories</strong>: binary or get_dummies encoding was used to encode categories: &#39;gender&#39; and &#39;region&#39;; features with fewer than 20 members.</p>
-                     </li>
-                     <li><p><strong>Transformed Features</strong>: &#39;amt&#39; (Transaction Amount), due to the very high dispersion in this feature it was transformed by the natural log.<br>
-                            <div class="row align-items-center">
-                                   <div class="col-6 offset-md-1 m-3">
-                                          <img src="/img/amount.png" alt="original amt distribution">
-                                   </div>
-                                   <div class="col-6 offset-md-1 m-3">
-                                          <img src="/img/amount_log.png" alt="amt transformed to a log distribution">
-                                   </div> 
-
-                            </div> 
-                     </p>
-                     </li>
-                     <li><p><strong>Spliting into Training and Testing Sets</strong>: The resulting data set was split into training and testing sets with 75% of the data used for training and 25% was used for testing.  Due to the very high imbalance in target labels (classes), the training and test splits were reviewed to ensure an adequate number of labels were assigned to each set.<br>         <code>Average class probability in the data set:     0.003860</code><br>         <code>Average class probability in the training set: 0.003839</code><br>         <code>Average class probability in the test set:     0.003923</code></p>
-                     </li>
-                     <li><p>The distribution of the y_postive and y_negative labels were reviewed.<br>
-                            <div class="row align-items-center justify-content-center">
-                                   <div class="col-9 offset-md-1 m-3">
-                                          <img src="/img/Distribution_of_y_pos.png" alt="Distribution of Positive y">
-                                   </div>
-                            </div>
-                            <div class="row align-items-center justify-content-center">
-                                   <div class="col-9 offset-md-1 m-3">
-                                          <img src="/img/Distribution_of_y_neg.png" alt="Distribution of Negative y">  
-                                   </div>
-                            </div>
-                     </p>
-                     </li>
-                     <li><p><strong>Encoding Features with Extensive Categories</strong>: Target encoding was used to encode the &#39;merchants&#39;, and &#39;jobs&#39; features.  It was applied after splitting the data into train and test sets.  The target encoder was fit to the training data, the resulting encoder was used to transform both the training and testing sets.</p>
-                     </li>
-                     <li><p><strong>Scaling</strong>: Sci-kit Learns standard scaler was fit to the training features, and the training and testing features were transformed with the resulting scaler.</p>
-                     </li>
-                     </ol>
-                     <hr>
-                     <h2>Part 4 Assessing various machine learning algorithms.</h2>
-                     <p>The following models were reviewed for their ability to achieve a balanced accuracy score while maximizing the recall of the model.</p>
-                     <h3>1. Logistic Regression</h3>
-                     <div class="row">
+<body class="bg-primary">
+       <div class="container  bg-secondary m-5">
+              <h1>Supervised Machine Learning Model Evaluation and Selection for Credit Card Fraud Detection</h1>
+              <h2>An Overview and purpose:</h2>
+              <p>To evaluate a variety of machine learning algorithms and their ability to correctly identify fraudulent transactions within a population of transactions.  The binary classification machine learning models will be evaluated using a labeled dataset consisting of 22 features.</p>
+              <ol>
+              <li>Trans_date_trans_time: Timestamp of the transaction (date and time).  </li>
+              <li>Cc_num: Unique customer identification number.  </li>
+              <li>MerchantThe merchant involved in the transaction.  </li>
+              <li>Category Transaction type (e.g., personal, childcare). </li>
+              <li>Amt: Transaction amount.  </li>
+              <li>First: Cardholder&#39;s first name.  </li>
+              <li>Last Cardholder&#39;s last name.  </li>
+              <li>Gender: Cardholder&#39;s gender.  </li>
+              <li>Street: Cardholder&#39;s street address.  </li>
+              <li>City: Cardholder&#39;s city of residence.</li>
+              <li>State: Cardholder&#39;s state of residence.</li>
+              <li>Zip: Cardholder&#39;s zip code.</li>
+              <li>Lat: Latitude of cardholder&#39;s location.</li>
+              <li>Long: Longitude of cardholder&#39;s location.</li>
+              <li>City_pop: Population of the cardholder&#39;s city.</li>
+              <li>Job: Cardholder&#39;s job title.</li>
+              <li>Dob: Cardholder&#39;s date of birth.</li>
+              <li>Trans_num: Unique transaction identifier.</li>
+              <li>Unix_time: Transaction timestamp (Unix format).</li>
+              <li>Merch_lat: Merchant&#39;s location (latitude).</li>
+              <li>Merch_long: Merchant&#39;s location (longitude).</li>
+              <li>Is_fraud:Fraudulent transaction indicator (1 = fraud, 0 = legitimate). This is the target variable for classification purposes.</li>
+              </ol>
+              <p>The analysis is divided into the following six parts:</p>
+              <ol>
+              <li>Target variable review.</li>
+              <li>Selection of the objective metric(s) for model assessment.</li>
+              <li>Feature Engineering and Data Preprocessing.</li>
+              <li>Evaluation of various types of machine learning algorithms with minimal tuning.</li>
+              <li>Selection of the &quot;best&quot; algorithm from the assessed set of algorithms for hyperparameter tuning.</li>
+              <li>Tuning the chosen model for optimal performance.</li>
+              </ol>
+              <hr>
+              <h2>Part 1 Target Variable Review</h2>
+              
+              <p>The dataset consisted of 555718 transaction records of which 2145 were fraudulent (0.3860%).  The labels therefore are highly imbalanced and steps were taken to address the impact of this imbalance on the models.<br>
+                     <div class="row align-items-center">
                             <div class="col-6 offset-md-1">
-                                   <table class="table table-bordered">
-                                          <caption>Logistic Regression Results</caption>
+                                   <img src="/img/Target_Variable_distribution.png" alt="Target Variable Distribution">
+                            </div>
+                     </div>
+              </p>
+              
+              <hr>
+              <h2>Part 2 Selection of the objective metric for model assessment</h2>
+              <p>A common metric for machine learning model assessment is accuracy.  However, when dealing with a dataset with a highly imbalanced target variable, relying on accuracy for model assessment can cause issues.</p>
+              <p>Accuracy, as a metric, represents the proportion of correct predictions out of all predictions made. However, when assessing a model’s ability to predict rare positive labels (such as fraudulent transactions), accuracy can be misleading. Why? Because it gives equal weight to both positive (fraudulent) and negative (non-fraudulent) predictions. Let’s illustrate this with an example:</p>
+              <p>Suppose we have a dataset of 100 transactions, with 50 being fraudulent and 50 non-fraudulent. If a model correctly identifies just 90% of the fraudulent transactions (45 out of 50), it achieves an accuracy score of 95%. However, consider a different scenario: a dataset with only 10 fraudulent records and 90 non-fraudulent records. In this case, the model can achieve the same 90% accuracy by correctly identifying all non-fraudulent transactions but completely missing the fraudulent ones.</p>
+              <p>Given that our dataset has, on average, only 1 fraudulent transaction for every 259 transactions observed, using accuracy alone as the performance measure is inadequate. To address this, we turn to balanced accuracy.</p>
+              <p>Balanced accuracy accounts for the class imbalance by considering both positive and negative predictions. It is calculated as the average of two ratios:</p>
+              <p>The correctly predicted fraudulent transactions are divided by all fraudulent transactions (cpf/af).<br>The correctly predicted non-fraudulent transactions are divided by all non-fraudulent transactions (cpnf/anf).<br>Mathematically:</p>
+              <p>Balanced Accuracy = (cpf/af + cpnf/anf) / 2<br>Where:</p>
+              <p>cpf = correctly predicted fraudulent transactions<br>af = all fraudulent transactions<br>cpnf = correctly predicted non-fraudulent transactions<br>anf = all non-fraudulent transactions&quot;</p>
+              <p>Balanced Accuracy is a more appropriate objective metric over accuracy when working with imbalanced classes in the target, as it weighs each sample according to the inverse prevalence of its true class.  It is this metric that is used to assess each model&#39;s performance.</p>
+              <hr>
+              <h2>Part 3 Feature Engineering and Data Preprocessing</h2>
+              <p>After performing a descriptive analysis of the data some features were dropped or created then encoded/transformed and scaled:   </p>
+              <ol>
+              <li><strong>Dropped Features</strong>: &#39;First&#39; Name, &#39;Last&#39; Name, &#39;cc_num&#39;, &#39;street&#39;, &#39;city&#39;, &#39;state&#39;, &#39;dob&#39;, &#39;Trans_num&#39;, &#39;Unix_time&#39;, &#39;Lat&#39;, &#39;Long&#39;, &#39;Merch_lat&#39;, &#39;Merch_long&#39;.  The personal identification data was dropped as we didn&#39;t want it to influence the analysis, we tried to find the fraudulent customer without knowing their exact ID.  Transaction features like Trans_num, and Unix_Time were also dropped as they do not correlate to the inci2ence of fraud.  </li>
+              <li><strong>Created Features</strong>:</li>
+              </ol>
+              <ul>
+              <li>&#39;Region&#39;, an amalgamation of U.S. States according to the  <a href="https://www.bea.gov/">U.S. Bureau of Economic Analysis</a>.</li>
+              <li>&#39;Age_years&#39;, the age of the cardholder based on the difference between today&#39;s date and the cardholder&#39;s DOB.</li>
+              <li>&#39;Distance_km&#39;, the distance between the cardholder&#39;s latitude and longitude and the merchant&#39;s latitude and longitude.</li>
+              </ul>
+              <ol start="4">
+              <li><p><strong>Encoding Features with few categories</strong>: binary or get_dummies encoding was used to encode categories: &#39;gender&#39; and &#39;region&#39;; features with fewer than 20 members.</p>
+              </li>
+              <li><p><strong>Transformed Features</strong>: &#39;amt&#39; (Transaction Amount), due to the very high dispersion in this feature it was transformed by the natural log.<br>
+                     <div class="row align-items-center">
+                            <div class="col-6 offset-md-1 m-3">
+                                   <img src="/img/amount.png" alt="original amt distribution">
+                            </div>
+                            <div class="col-6 offset-md-1 m-3">
+                                   <img src="/img/amount_log.png" alt="amt transformed to a log distribution">
+                            </div> 
+
+                     </div> 
+              </p>
+              </li>
+              <li><p><strong>Spliting into Training and Testing Sets</strong>: The resulting data set was split into training and testing sets with 75% of the data used for training and 25% was used for testing.  Due to the very high imbalance in target labels (classes), the training and test splits were reviewed to ensure an adequate number of labels were assigned to each set.<br>         <code>Average class probability in the data set:     0.003860</code><br>         <code>Average class probability in the training set: 0.003839</code><br>         <code>Average class probability in the test set:     0.003923</code></p>
+              </li>
+              <li><p>The distribution of the y_postive and y_negative labels were reviewed.<br>
+                     <div class="row align-items-center justify-content-center">
+                            <div class="col-9 offset-md-1 m-3">
+                                   <img src="/img/Distribution_of_y_pos.png" alt="Distribution of Positive y">
+                            </div>
+                     </div>
+                     <div class="row align-items-center justify-content-center">
+                            <div class="col-9 offset-md-1 m-3">
+                                   <img src="/img/Distribution_of_y_neg.png" alt="Distribution of Negative y">  
+                            </div>
+                     </div>
+              </p>
+              </li>
+              <li><p><strong>Encoding Features with Extensive Categories</strong>: Target encoding was used to encode the &#39;merchants&#39;, and &#39;jobs&#39; features.  It was applied after splitting the data into train and test sets.  The target encoder was fit to the training data, the resulting encoder was used to transform both the training and testing sets.</p>
+              </li>
+              <li><p><strong>Scaling</strong>: Sci-kit Learns standard scaler was fit to the training features, and the training and testing features were transformed with the resulting scaler.</p>
+              </li>
+              </ol>
+              <hr>
+              <h2>Part 4 Assessing various machine learning algorithms.</h2>
+              <p>The following models were reviewed for their ability to achieve a balanced accuracy score while maximizing the recall of the model.</p>
+              <h3>1. Logistic Regression</h3>
+              <div class="row">
+                     <div class="col-6 offset-md-1">
+                            <table class="table table-bordered">
+                                   <caption>Logistic Regression Results</caption>
+                                   <tr>
+                                          <th colspan="2">Confusion Matrix</th>
+                                          <th>Predicted Legitimate 0</th>
+                                          <th>Predicted Fraudulent 1</th>
+                                   </tr>
+                                   <tr>
+                                          <td colspan="2">Legitimate 0</td>
+                                          <td>138366</td>
+                                          <td>19</td>
+                                   </tr>
+                                   <tr>
+                                          <td colspan="2">Fraudulent 1</td>
+                                          <td>520</td>
+                                          <td>25</td>
+                                   </tr>
+                                   <tr>
+                                          <td colspan="4">Accuracy Score: 0.9961</td>
+                                   </tr>
+                                   <tr>
+                                          <td colspan="4">Balanced Accuracy Score: 0.5229</td>
+                                   </tr>
+                                   <tr>
+                                          <th colspan="4">Classification Report</th>
+                                   </tr>
+                                   <tr>
+                                          <th>Class</th>
+                                          <th>Precision</th>
+                                          <th>Recall</th>
+                                          <th>F1-score</th>
+                                   </tr>
+                                   <tr>
+                                          <td>0</td>
+                                          <td>1.00</td>
+                                          <td>1.00</td>
+                                          <td>1.00</td>
+                                   </tr>
+                                   <tr>
+                                          <td>1</td>
+                                          <td>0.57</td>
+                                          <td>0.05</td>
+                                          <td>0.08</td>
+                                   </tr>
+                                   <tr>
+                                          <td>Accuracy</td>
+                                          <td colspan="3">1.00</td>
+                                   </tr>
+                                   <tr>
+                                          <td>Macro avg</td>
+                                          <td>0.78</td>
+                                          <td>0.52</td>
+                                          <td>0.54</td>
+                                   </tr>
+                                   <tr>
+                                          <td>Weighted avg</td>
+                                          <td>0.99</td>
+                                          <td>1.00</td>
+                                          <td>0.99</td>
+                                   </tr>
+                            </table>
+                     </div>
+              </div>
+              
+              <p>The logistic regression model as illustrated above has a mediocre performance when attempting to predict the fraudulent records in the test set as evidenced by the recall of 0.05 where approximately 1 in every 20 fraudulent transactions were detected.  This low performance is further illustrated by the 0.52 balanced accuracy score achieved.  Based on this result we moved on to a non-linear model.</p>
+              <h3>2. Support Vector Machine (Kernel RBF)</h3>
+              <div class="row">
+                     <div class="col-6 offset-md-1">
+                            <table class="table table-bordered">
+                                          <caption>Support Vector Machine (RBF Kernel) Results</caption>
                                           <tr>
                                                  <th colspan="2">Confusion Matrix</th>
                                                  <th>Predicted Legitimate 0</th>
@@ -144,19 +212,19 @@
                                           </tr>
                                           <tr>
                                                  <td colspan="2">Legitimate 0</td>
-                                                 <td>138366</td>
-                                                 <td>19</td>
+                                                 <td>138364</td>
+                                                 <td>21</td>
                                           </tr>
                                           <tr>
                                                  <td colspan="2">Fraudulent 1</td>
-                                                 <td>520</td>
-                                                 <td>25</td>
+                                                 <td>410</td>
+                                                 <td>135</td>
                                           </tr>
                                           <tr>
-                                                 <td colspan="4">Accuracy Score: 0.9961</td>
+                                                 <td colspan="4">Accuracy Score: 0.9969</td>
                                           </tr>
                                           <tr>
-                                                 <td colspan="4">Balanced Accuracy Score: 0.5229</td>
+                                                 <td colspan="4">Balanced Accuracy Score: 0.6238</td>
                                           </tr>
                                           <tr>
                                                  <th colspan="4">Classification Report</th>
@@ -175,9 +243,9 @@
                                           </tr>
                                           <tr>
                                                  <td>1</td>
-                                                 <td>0.57</td>
-                                                 <td>0.05</td>
-                                                 <td>0.08</td>
+                                                 <td>0.87</td>
+                                                 <td>0.25</td>
+                                                 <td>0.39</td>
                                           </tr>
                                           <tr>
                                                  <td>Accuracy</td>
@@ -185,266 +253,26 @@
                                           </tr>
                                           <tr>
                                                  <td>Macro avg</td>
-                                                 <td>0.78</td>
-                                                 <td>0.52</td>
-                                                 <td>0.54</td>
+                                                 <td>0.93</td>
+                                                 <td>0.62</td>
+                                                 <td>0.69</td>
                                           </tr>
                                           <tr>
                                                  <td>Weighted avg</td>
-                                                 <td>0.99</td>
                                                  <td>1.00</td>
-                                                 <td>0.99</td>
+                                                 <td>1.00</td>
+                                                 <td>1.00</td>
                                           </tr>
-                                   </table>
-                            </div>
+                            </table>
                      </div>
-                     
-                     <p>The logistic regression model as illustrated above has a mediocre performance when attempting to predict the fraudulent records in the test set as evidenced by the recall of 0.05 where approximately 1 in every 20 fraudulent transactions were detected.  This low performance is further illustrated by the 0.52 balanced accuracy score achieved.  Based on this result we moved on to a non-linear model.</p>
-                     <h3>2. Support Vector Machine (Kernel RBF)</h3>
-                     <div class="row">
-                            <div class="col-6 offset-md-1">
-                                   <table class="table table-bordered">
-                                                 <caption>Support Vector Machine (RBF Kernel) Results</caption>
-                                                 <tr>
-                                                        <th colspan="2">Confusion Matrix</th>
-                                                        <th>Predicted Legitimate 0</th>
-                                                        <th>Predicted Fraudulent 1</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="2">Legitimate 0</td>
-                                                        <td>138364</td>
-                                                        <td>21</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="2">Fraudulent 1</td>
-                                                        <td>410</td>
-                                                        <td>135</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="4">Accuracy Score: 0.9969</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="4">Balanced Accuracy Score: 0.6238</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <th colspan="4">Classification Report</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <th>Class</th>
-                                                        <th>Precision</th>
-                                                        <th>Recall</th>
-                                                        <th>F1-score</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>0</td>
-                                                        <td>1.00</td>
-                                                        <td>1.00</td>
-                                                        <td>1.00</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>1</td>
-                                                        <td>0.87</td>
-                                                        <td>0.25</td>
-                                                        <td>0.39</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Accuracy</td>
-                                                        <td colspan="3">1.00</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Macro avg</td>
-                                                        <td>0.93</td>
-                                                        <td>0.62</td>
-                                                        <td>0.69</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Weighted avg</td>
-                                                        <td>1.00</td>
-                                                        <td>1.00</td>
-                                                        <td>1.00</td>
-                                                 </tr>
-                                   </table>
-                            </div>
-                     </div>
+              </div>
 
-                     <p>The non-linear Support Vector Machine model with the non-linear radial bias activation function performs marginally better than the logistic regression function.  It yields a 0.10 improvement in the balanced accuracy score and a 5-fold improvement in model recall.  However the model is only able to detect 25% of the fraudulent transactions.  </p>
-                     <h3>3. Random Forest Classifier</h3>
-                     <div class="row">
-                            <div class="col-6 offset-md-1">
-                                   <table class="table table-bordered">
-                                                 <caption>Random Forest Classifier Results</caption>
-                                                 <tr>
-                                                        <th colspan="2">Confusion Matrix</th>
-                                                        <th>Predicted Legitimate 0</th>
-                                                        <th>Predicted Fraudulent 1</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="2">Legitimate 0</td>
-                                                        <td>138352</td>
-                                                        <td>33</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="2">Fraudulent 1</td>
-                                                        <td>208</td>
-                                                        <td>337</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="4">Accuracy Score: 0.9983</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="4">Balanced Accuracy Score: 0.8091</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <th colspan="4">Classification Report</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <th>Class</th>
-                                                        <th>Precision</th>
-                                                        <th>Recall</th>
-                                                        <th>F1-score</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>0</td>
-                                                        <td>1.00</td>
-                                                        <td>1.00</td>
-                                                        <td>1.00</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>1</td>
-                                                        <td>0.91</td>
-                                                        <td>0.62</td>
-                                                        <td>0.74</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Accuracy</td>
-                                                        <td colspan="3">1.00</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Macro avg</td>
-                                                        <td>0.95</td>
-                                                        <td>0.81</td>
-                                                        <td>0.87</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Weighted avg</td>
-                                                        <td>1.00</td>
-                                                        <td>1.00</td>
-                                                        <td>1.00</td>
-                                                 </tr>
-                                   </table>
-                            </div>
-                     </div>
-
-                     <p>Next, we reviewed an ensemble random forest model which was much more performant than the previous two models. With this model, we started to see a more acceptable balanced accuracy score (0.81) but the model was able to predict fraudulent transactions only 62% of the time.</p>
-                     <p>The random forest classifier generated the following feature importance which sheds light on the factors influencing the model prediction:<br>
-                            <div class="row">
-                                   <div class="col-6 offset-md-1">
-                                          <img src="/img/RandomForestImportance.png" alt="Random Forest Feature Importance">
-                                   </div>
-                            </div>
-                     </p>
-                     <h3>4. XGBoost with positive scaling of labels</h3>
-                     <div class="row">
-                            <div class="col-6 offset-md-1">
-                                   <table class="table table-bordered">
-                                                 <caption>XGBoost Baseline Model Results</caption>
-                                                 <tr>
-                                                        <th colspan="2">Confusion Matrix</th>
-                                                        <th>Predicted Legitimate 0</th>
-                                                        <th>Predicted Fraudulent 1</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="2">Legitimate 0</td>
-                                                        <td>137580</td>
-                                                        <td>805</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="2">Fraudulent 1</td>
-                                                        <td>50</td>
-                                                        <td>495</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="4">Accuracy Score: 0.9938</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td colspan="4">Balanced Accuracy Score: 0.9512</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <th colspan="4">Classification Report</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <th>Class</th>
-                                                        <th>Precision</th>
-                                                        <th>Recall</th>
-                                                        <th>F1-score</th>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>0</td>
-                                                        <td>1.00</td>
-                                                        <td>0.99</td>
-                                                        <td>1.00</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>1</td>
-                                                        <td>0.38</td>
-                                                        <td>0.91</td>
-                                                        <td>0.54</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Accuracy</td>
-                                                        <td colspan="3">0.99</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Macro avg</td>
-                                                        <td>0.69</td>
-                                                        <td>0.95</td>
-                                                        <td>0.77</td>
-                                                 </tr>
-                                                 <tr>
-                                                        <td>Weighted avg</td>
-                                                        <td>1.00</td>
-                                                        <td>0.99</td>
-                                                        <td>1.00</td>
-                                                 </tr>
-                                   </table>
-                            </div>
-                     </div>
-                     <p>The XGBoost model with its ability to accept a &#39;scale_pos_weight&#39; parameter helps compensate for the class imbalance in the target variable.  As a result, it performs much better at detecting fraudulent transactions than the other algorithms considered.  The parameter <a href="Footnotes:">2</a>&#39;scale_pos_weights&#39; is set to the ratio of negative transactions to positive transactions. (sum(negative_y)/sum(positive_y)) or 259.0 which when applied removes the imbalance in the target label during model fitting.</p>
-                     <p>Note robustness of the XGBoost algorithm is evident when reviewing the relative importance of the features applied.  XGBoost can reduce the impact of a feature to zero or nearly zero which can assist the scientist with feature engineering.</p>
-                     <p>
-                            <div class="row">
-                                   <div class="col-6 offset-md-1">
-                                          <img src="/img/XGB_base_importances.png" alt="XGBoost Classifier Base Model Feature Importance">
-                                   </div>
-                            </div>
-                     </p>
-                     <h2>Part 5 Algorithm Selection</h2>
-                     <p>After reviewing the model results XGBoost was selected for hyper-parameter tuning because:</p>
-                     <ol>
-                     <li>XGBoost has facilities to address the imbalance in the target class.</li>
-                     <li>XGBoost has available a robust set of parameters for hyper-parameter-tuning.</li>
-                     <li>XGBoost showed the most performance in the objective metric (balanced accuracy) from the algorithms reviewed.</li>
-                     </ol>
-                     <hr>
-                     <h2>Part 6 Tuning XGBoost and selecting the best model.</h2>
-                     <p>The parameters selected to be tuned were:  </p>
-                     <ol>
-                     <li>The number of boosting rounds to run (32,64,128,256,512) </li>
-                     <li>The maximum depth of the trees created (2, 4, 6, 8, 10, 12)  </li>
-                     <li>This results in 30 distinct models being evaluated.</li>
-                     </ol>
-                     <p>The results were as follows:</p>
-                     <ol>
-                     <li>From the 30 models run by the tuner, 6 (20%) of the models met the primary requirement of meeting 0.965 balanced accuracy.</li>
-                     <li>From the 6 models 3 (50%) met the requirement of being within 1 standard deviation of the model with the highest precision.</li>
-                     <li>Of these 3 models, the one that rendered the fastest prediction was selected as the <strong>BEST</strong> model.</li>
-                     </ol>
-                     <p>The tuning objective was set to maximize the balance accuracy score and secondarily improve model precision.  Precision was chosen in an attempt to minimize the rate of false positives. </p>
-                     <div class="row">
-                            <div class="col-6 offset-md-1">
-                                   
-                                   <table class="table table-bordered">
-                                          <caption>XGBoost Grid Search Best Model Results</caption>
+              <p>The non-linear Support Vector Machine model with the non-linear radial bias activation function performs marginally better than the logistic regression function.  It yields a 0.10 improvement in the balanced accuracy score and a 5-fold improvement in model recall.  However the model is only able to detect 25% of the fraudulent transactions.  </p>
+              <h3>3. Random Forest Classifier</h3>
+              <div class="row">
+                     <div class="col-6 offset-md-1">
+                            <table class="table table-bordered">
+                                          <caption>Random Forest Classifier Results</caption>
                                           <tr>
                                                  <th colspan="2">Confusion Matrix</th>
                                                  <th>Predicted Legitimate 0</th>
@@ -452,19 +280,19 @@
                                           </tr>
                                           <tr>
                                                  <td colspan="2">Legitimate 0</td>
-                                                 <td>135526</td>
-                                                 <td>2859</td>
+                                                 <td>138352</td>
+                                                 <td>33</td>
                                           </tr>
                                           <tr>
                                                  <td colspan="2">Fraudulent 1</td>
-                                                 <td>10</td>
-                                                 <td>535</td>
+                                                 <td>208</td>
+                                                 <td>337</td>
                                           </tr>
                                           <tr>
-                                                 <td colspan="4">Accuracy Score: 0.9793</td>
+                                                 <td colspan="4">Accuracy Score: 0.9983</td>
                                           </tr>
                                           <tr>
-                                                 <td colspan="4">Balanced Accuracy Score: 0.9805</td>
+                                                 <td colspan="4">Balanced Accuracy Score: 0.8091</td>
                                           </tr>
                                           <tr>
                                                  <th colspan="4">Classification Report</th>
@@ -478,64 +306,247 @@
                                           <tr>
                                                  <td>0</td>
                                                  <td>1.00</td>
-                                                 <td>0.98</td>
-                                                 <td>0.99</td>
+                                                 <td>1.00</td>
+                                                 <td>1.00</td>
                                           </tr>
                                           <tr>
                                                  <td>1</td>
-                                                 <td>0.16</td>
-                                                 <td>0.98</td>
-                                                 <td>0.27</td>
+                                                 <td>0.91</td>
+                                                 <td>0.62</td>
+                                                 <td>0.74</td>
                                           </tr>
                                           <tr>
                                                  <td>Accuracy</td>
-                                                 <td colspan="3">0.98</td>
+                                                 <td colspan="3">1.00</td>
                                           </tr>
                                           <tr>
                                                  <td>Macro avg</td>
-                                                 <td>0.58</td>
-                                                 <td>0.98</td>
-                                                 <td>0.63</td>
+                                                 <td>0.95</td>
+                                                 <td>0.81</td>
+                                                 <td>0.87</td>
                                           </tr>
                                           <tr>
                                                  <td>Weighted avg</td>
                                                  <td>1.00</td>
-                                                 <td>0.98</td>
-                                                 <td>0.99</td>
+                                                 <td>1.00</td>
+                                                 <td>1.00</td>
                                           </tr>
-                                   </table>
-                            </div>
-                     </div>
-
-                     <p>The tuned model exhibited significant improvement in balanced accuracy (0.03) when evaluated against the test dataset, surpassing the base XGBoost model. Notably, it demonstrated heightened sensitivity to fraudulent transactions compared to all other reviewed models. However, this performance gain came at the cost of precision: 84% of the predicted fraudulent transactions were false positives, representing a 22% increase from the base model. Importantly, this translated to only 2% of legitimate transactions being incorrectly flagged as fraudulent.</p>
-                     <p>
-                            <div class="row">
-                                   <div class="col-6 offset-md-1">
-                                          <img src="/img/XGB_best_importances.png" alt="XGBoost Classifer BEST Model Feature Importance">
-                                   </div>
-                            </div>
-                     </p>
-                     <h2>Comparative Feature Importance by Model</h2>
-                     <p>In our review of ensemble models, one consistent finding is that the log_amount of the transaction stands out as the most significant feature across all models. However, beyond this consistency, the importance of other features varies significantly from model to model. Notably, both the XGBoost Base Model and the XGBoost BEST model share several features that rank high in importance. To explore further, we could consider excluding some of the less significant features from the XGBoost BEST Model and assess whether this refinement leads to improved performance.<br>
-                            <div class="row">
-                                   <div class="col-6 offset-md-3">
-                                          <img src="/img/Comparative_Importance.png" alt="Comparative Feature Importance by Model">
-                                   </div>
-                            </div>
-                     </p>
-                     <h2>Final Conclusions</h2>
-                     <p>XGBoost, with its capability to adjust the weight of the positive target coupled with using balanced accuracy as the objective performance metric, serves as an effective framework for building binary classification models. This framework is particularly well-suited for classifying datasets with highly imbalanced target classes.</p>
-                     <hr>
-                     <h3>Footnotes:</h3>
-                     <p>[1]<br><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html#sklearn.metrics.balanced_accuracy_score">Scikit Learn - Balanced Accuracy Score</a><br>[2]<br><a href="https://xgboost.readthedocs.io/en/stable/parameter.html">XGBoost - Control of positive and negative weights</a></p>
-                     <hr>
-                     <div class="row">
-                            <div class="col-6 offset-md-1">
-                                   
-                                   <p>The following data science and visualization technologies were used in creating this analysis:</p>
-                                   <p><img src="https://scikit-learn.org/stable/_images/scikit-learn-logo-notext.png" alt="https://scikit-learn.org/stable/index.html"><br><img src="https://raw.githubusercontent.com/dmlc/dmlc.github.io/master/img/logo-m/xgboost.png" alt="https://xgboost.readthedocs.io/en/stable/#"><br><img src="https://pandas.pydata.org/static/img/pandas_secondary.svg" alt="https://pandas.pydata.org/"><br><img src="https://plotly.com/all_static/images/graphing_library_dark.svg" alt="https://plotly.com/python/plotly-express/#overview">  </p>
-                            </div>
+                            </table>
                      </div>
               </div>
-       </body>
+
+              <p>Next, we reviewed an ensemble random forest model which was much more performant than the previous two models. With this model, we started to see a more acceptable balanced accuracy score (0.81) but the model was able to predict fraudulent transactions only 62% of the time.</p>
+              <p>The random forest classifier generated the following feature importance which sheds light on the factors influencing the model prediction:<br>
+                     <div class="row">
+                            <div class="col-6 offset-md-1">
+                                   <img src="/img/RandomForestImportance.png" alt="Random Forest Feature Importance">
+                            </div>
+                     </div>
+              </p>
+              <h3>4. XGBoost with positive scaling of labels</h3>
+              <div class="row">
+                     <div class="col-6 offset-md-1">
+                            <table class="table table-bordered">
+                                          <caption>XGBoost Baseline Model Results</caption>
+                                          <tr>
+                                                 <th colspan="2">Confusion Matrix</th>
+                                                 <th>Predicted Legitimate 0</th>
+                                                 <th>Predicted Fraudulent 1</th>
+                                          </tr>
+                                          <tr>
+                                                 <td colspan="2">Legitimate 0</td>
+                                                 <td>137580</td>
+                                                 <td>805</td>
+                                          </tr>
+                                          <tr>
+                                                 <td colspan="2">Fraudulent 1</td>
+                                                 <td>50</td>
+                                                 <td>495</td>
+                                          </tr>
+                                          <tr>
+                                                 <td colspan="4">Accuracy Score: 0.9938</td>
+                                          </tr>
+                                          <tr>
+                                                 <td colspan="4">Balanced Accuracy Score: 0.9512</td>
+                                          </tr>
+                                          <tr>
+                                                 <th colspan="4">Classification Report</th>
+                                          </tr>
+                                          <tr>
+                                                 <th>Class</th>
+                                                 <th>Precision</th>
+                                                 <th>Recall</th>
+                                                 <th>F1-score</th>
+                                          </tr>
+                                          <tr>
+                                                 <td>0</td>
+                                                 <td>1.00</td>
+                                                 <td>0.99</td>
+                                                 <td>1.00</td>
+                                          </tr>
+                                          <tr>
+                                                 <td>1</td>
+                                                 <td>0.38</td>
+                                                 <td>0.91</td>
+                                                 <td>0.54</td>
+                                          </tr>
+                                          <tr>
+                                                 <td>Accuracy</td>
+                                                 <td colspan="3">0.99</td>
+                                          </tr>
+                                          <tr>
+                                                 <td>Macro avg</td>
+                                                 <td>0.69</td>
+                                                 <td>0.95</td>
+                                                 <td>0.77</td>
+                                          </tr>
+                                          <tr>
+                                                 <td>Weighted avg</td>
+                                                 <td>1.00</td>
+                                                 <td>0.99</td>
+                                                 <td>1.00</td>
+                                          </tr>
+                            </table>
+                     </div>
+              </div>
+              <p>The XGBoost model with its ability to accept a &#39;scale_pos_weight&#39; parameter helps compensate for the class imbalance in the target variable.  As a result, it performs much better at detecting fraudulent transactions than the other algorithms considered.  The parameter <a href="Footnotes:">2</a>&#39;scale_pos_weights&#39; is set to the ratio of negative transactions to positive transactions. (sum(negative_y)/sum(positive_y)) or 259.0 which when applied removes the imbalance in the target label during model fitting.</p>
+              <p>Note robustness of the XGBoost algorithm is evident when reviewing the relative importance of the features applied.  XGBoost can reduce the impact of a feature to zero or nearly zero which can assist the scientist with feature engineering.</p>
+              <p>
+                     <div class="row">
+                            <div class="col-6 offset-md-1">
+                                   <img src="/img/XGB_base_importances.png" alt="XGBoost Classifier Base Model Feature Importance">
+                            </div>
+                     </div>
+              </p>
+              <h2>Part 5 Algorithm Selection</h2>
+              <p>After reviewing the model results XGBoost was selected for hyper-parameter tuning because:</p>
+              <ol>
+              <li>XGBoost has facilities to address the imbalance in the target class.</li>
+              <li>XGBoost has available a robust set of parameters for hyper-parameter-tuning.</li>
+              <li>XGBoost showed the most performance in the objective metric (balanced accuracy) from the algorithms reviewed.</li>
+              </ol>
+              <hr>
+              <h2>Part 6 Tuning XGBoost and selecting the best model.</h2>
+              <p>The parameters selected to be tuned were:  </p>
+              <ol>
+              <li>The number of boosting rounds to run (32,64,128,256,512) </li>
+              <li>The maximum depth of the trees created (2, 4, 6, 8, 10, 12)  </li>
+              <li>This results in 30 distinct models being evaluated.</li>
+              </ol>
+              <p>The results were as follows:</p>
+              <ol>
+              <li>From the 30 models run by the tuner, 6 (20%) of the models met the primary requirement of meeting 0.965 balanced accuracy.</li>
+              <li>From the 6 models 3 (50%) met the requirement of being within 1 standard deviation of the model with the highest precision.</li>
+              <li>Of these 3 models, the one that rendered the fastest prediction was selected as the <strong>BEST</strong> model.</li>
+              </ol>
+              <p>The tuning objective was set to maximize the balance accuracy score and secondarily improve model precision.  Precision was chosen in an attempt to minimize the rate of false positives. </p>
+              <div class="row">
+                     <div class="col-6 offset-md-1">
+                            
+                            <table class="table table-bordered">
+                                   <caption>XGBoost Grid Search Best Model Results</caption>
+                                   <tr>
+                                          <th colspan="2">Confusion Matrix</th>
+                                          <th>Predicted Legitimate 0</th>
+                                          <th>Predicted Fraudulent 1</th>
+                                   </tr>
+                                   <tr>
+                                          <td colspan="2">Legitimate 0</td>
+                                          <td>135526</td>
+                                          <td>2859</td>
+                                   </tr>
+                                   <tr>
+                                          <td colspan="2">Fraudulent 1</td>
+                                          <td>10</td>
+                                          <td>535</td>
+                                   </tr>
+                                   <tr>
+                                          <td colspan="4">Accuracy Score: 0.9793</td>
+                                   </tr>
+                                   <tr>
+                                          <td colspan="4">Balanced Accuracy Score: 0.9805</td>
+                                   </tr>
+                                   <tr>
+                                          <th colspan="4">Classification Report</th>
+                                   </tr>
+                                   <tr>
+                                          <th>Class</th>
+                                          <th>Precision</th>
+                                          <th>Recall</th>
+                                          <th>F1-score</th>
+                                   </tr>
+                                   <tr>
+                                          <td>0</td>
+                                          <td>1.00</td>
+                                          <td>0.98</td>
+                                          <td>0.99</td>
+                                   </tr>
+                                   <tr>
+                                          <td>1</td>
+                                          <td>0.16</td>
+                                          <td>0.98</td>
+                                          <td>0.27</td>
+                                   </tr>
+                                   <tr>
+                                          <td>Accuracy</td>
+                                          <td colspan="3">0.98</td>
+                                   </tr>
+                                   <tr>
+                                          <td>Macro avg</td>
+                                          <td>0.58</td>
+                                          <td>0.98</td>
+                                          <td>0.63</td>
+                                   </tr>
+                                   <tr>
+                                          <td>Weighted avg</td>
+                                          <td>1.00</td>
+                                          <td>0.98</td>
+                                          <td>0.99</td>
+                                   </tr>
+                            </table>
+                     </div>
+              </div>
+
+              <p>The tuned model exhibited significant improvement in balanced accuracy (0.03) when evaluated against the test dataset, surpassing the base XGBoost model. Notably, it demonstrated heightened sensitivity to fraudulent transactions compared to all other reviewed models. However, this performance gain came at the cost of precision: 84% of the predicted fraudulent transactions were false positives, representing a 22% increase from the base model. Importantly, this translated to only 2% of legitimate transactions being incorrectly flagged as fraudulent.</p>
+              <p>
+                     <div class="row">
+                            <div class="col-6 offset-md-1">
+                                   <img src="/img/XGB_best_importances.png" alt="XGBoost Classifer BEST Model Feature Importance">
+                            </div>
+                     </div>
+              </p>
+              <h2>Comparative Feature Importance by Model</h2>
+              <p>In our review of ensemble models, one consistent finding is that the log_amount of the transaction stands out as the most significant feature across all models. However, beyond this consistency, the importance of other features varies significantly from model to model. Notably, both the XGBoost Base Model and the XGBoost BEST model share several features that rank high in importance. To explore further, we could consider excluding some of the less significant features from the XGBoost BEST Model and assess whether this refinement leads to improved performance.<br>
+                     <div class="row">
+                            <div class="col-6 offset-md-3">
+                                   <img src="/img/Comparative_Importance.png" alt="Comparative Feature Importance by Model">
+                            </div>
+                     </div>
+              </p>
+              <h2>Final Conclusions</h2>
+              <p>XGBoost, with its capability to adjust the weight of the positive target coupled with using balanced accuracy as the objective performance metric, serves as an effective framework for building binary classification models. This framework is particularly well-suited for classifying datasets with highly imbalanced target classes.</p>
+              <hr>
+              <h3>Footnotes:</h3>
+              <p>[1]<br><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.balanced_accuracy_score.html#sklearn.metrics.balanced_accuracy_score">Scikit Learn - Balanced Accuracy Score</a><br>[2]<br><a href="https://xgboost.readthedocs.io/en/stable/parameter.html">XGBoost - Control of positive and negative weights</a></p>
+              <hr>
+              <div class="row">
+                     <div class="col-6 offset-md-1">
+                            
+                            <p>The following data science and visualization technologies were used in creating this analysis:</p>
+                            <p><img src="https://scikit-learn.org/stable/_images/scikit-learn-logo-notext.png" alt="https://scikit-learn.org/stable/index.html"><br><img src="https://raw.githubusercontent.com/dmlc/dmlc.github.io/master/img/logo-m/xgboost.png" alt="https://xgboost.readthedocs.io/en/stable/#"><br><img src="https://pandas.pydata.org/static/img/pandas_secondary.svg" alt="https://pandas.pydata.org/"><br><img src="https://plotly.com/all_static/images/graphing_library_dark.svg" alt="https://plotly.com/python/plotly-express/#overview">  </p>
+                     </div>
+              </div>
+       </div>
+       <footer class="bg-primary text-light text-center py-4">
+              <div class="container-fluid">
+                     <p>&copy; <span id="year"></span> Near North Analytics. All rights reserved.</p>
+              </div>
+       </footer>
+       <!-- JavaScript to dynamically update the year -->
+       <script>
+              document.addEventListener('DOMContentLoaded', () => {
+                     document.getElementById('year').textContent = new Date().getFullYear();
+              });
+       </script>
+</body>
 </html>
