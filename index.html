@@ -216,6 +216,7 @@
             `;
 
             const formData = new FormData(e.target);
+            console.log('Sending request from origin:', window.location.origin);
 
             try {
                 const response = await fetch('https://hidden-dew-0b42.john-9a9.workers.dev/', {
@@ -224,8 +225,10 @@
                 // Add mode: 'cors' explicitly
                 mode: 'cors'
                 });
-
+                console.log('Response status:', response.status);
+                
                 const data = await response.json();
+                console.log('Response data:', data);
 
                 if (!response.ok) {
                 throw new Error(data.error || 'Failed to send message');
